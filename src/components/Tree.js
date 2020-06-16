@@ -2,40 +2,22 @@ import React from "react";
 import TreeNode from "./TreeNode";
 
 class Tree extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { title: "Tree" };
-  }
   render() {
-    const nodes = this.getNodes();
+    const nodes = this.props.nodes;
     return (
       <div>
-        <h1>{this.state.title}</h1>
+        <h1>{this.props.title}</h1>
         <div>
           {nodes.map((node) => (
-            <TreeNode name={node.name}></TreeNode>
+            <TreeNode
+              key={node.id}
+              name={node.name}
+              children={node.children}
+            ></TreeNode>
           ))}
         </div>
       </div>
     );
-  }
-
-  getNodes() {
-    const nodes = [
-      {
-        id: 1,
-        name: "Node1",
-      },
-      {
-        id: 2,
-        name: "Node2",
-      },
-      {
-        id: 3,
-        name: "Node3",
-      },
-    ];
-    return nodes;
   }
 }
 

@@ -1,10 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Tree from "./components/Tree";
+import App from "./App.js";
 
 ReactDOM.render(
   <React.StrictMode>
-    <Tree />
+    <App />
   </React.StrictMode>,
   document.getElementById("root")
 );
