@@ -7,10 +7,10 @@ class TreeNode extends React.Component {
   }
   render() {
     const children = this.props.children;
-    if (children) {
-      return (
-        <div className="Tree-node">
-          <div>{this.props.name}</div>
+    return (
+      <div className="Tree-node">
+        <div onClick={this.select.bind(this)}>{this.props.name}</div>
+        {children && (
           <div className="Tree-node-child">
             {children.map((node) => (
               <TreeNode
@@ -20,11 +20,10 @@ class TreeNode extends React.Component {
               ></TreeNode>
             ))}
           </div>
-        </div>
-      );
-    } else {
-      return <div className="Tree-node">{this.props.name}</div>;
-    }
+        )}
+      </div>
+    );
+  }
   }
 }
 
