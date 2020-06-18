@@ -4,19 +4,26 @@ import "../styles/Style.css";
 class TreeNode extends React.Component {
   constructor(props) {
     super(props);
+    this.select = this.select.bind(this);
   }
   render() {
-    const children = this.props.children;
+    const children = this.props.node.children;
+    const className = this.props.node.selected
+      ? "tree-node-selected"
+      : "tree-node";
     return (
-      <div className="Tree-node">
-        <div onClick={this.select.bind(this)}>{this.props.name}</div>
+      <div className="tree-node">
+        <div className={className} onClick={this.select}>
+          {this.props.node.name}
+        </div>
         {children && (
-          <div className="Tree-node-child">
+          <div className="tree-node-child">
             {children.map((node) => (
               <TreeNode
                 key={node.id}
-                name={node.name}
-                children={node.children}
+                node={node}
+                selected={false}
+                onClick={this.props.onClick}
               ></TreeNode>
             ))}
           </div>
@@ -24,6 +31,8 @@ class TreeNode extends React.Component {
       </div>
     );
   }
+  select() {
+    this.props.onClick(this.props.node);
   }
 }
 

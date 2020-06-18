@@ -6,14 +6,17 @@ export const data = [
       {
         id: 4,
         name: "Node4",
+        parentId: 1,
         children: [
           {
             id: 5,
             name: "Node5",
+            parentId: 4,
             children: [
               {
                 id: 7,
                 name: "Node7",
+                parentId: 5,
               },
             ],
           },
@@ -28,6 +31,7 @@ export const data = [
       {
         id: 6,
         name: "Node6",
+        parentId: 2,
       },
     ],
   },

@@ -1,7 +1,20 @@
-.Tree-node {
+.tree {
+  margin-bottom: 20px;
+}
+
+.tree-node {
   margin: 10px;
 }
 
-.Tree-node-child {
+.tree-node-selected {
+  margin: 10px;
+  color: aqua;
+}
+
+.tree-node-child {
   margin-left: 10px;
+}
+
+.button {
+  margin: 3px;
 }
