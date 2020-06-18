@@ -7,7 +7,7 @@ class TreeNode extends React.Component {
     this.select = this.select.bind(this);
   }
   render() {
-    const children = this.props.node.children;
+    const children = this.props.getChildren(this.props.node.id);
     const className = this.props.node.selected
       ? "tree-node-selected"
       : "tree-node";
@@ -23,6 +23,7 @@ class TreeNode extends React.Component {
                 key={node.id}
                 node={node}
                 selected={false}
+                getChildren={this.props.getChildren}
                 onClick={this.props.onClick}
               ></TreeNode>
             ))}
