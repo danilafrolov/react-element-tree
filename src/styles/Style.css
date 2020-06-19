@@ -1,14 +1,31 @@
+.tree-container {
+  display: inline-block;
+  margin: 20px;
+  vertical-align: top;
+  min-height: 350px;
+}
+
+.tree-container h2 {
+  text-align: center;
+}
+
+.tree-container-button {
+  margin-top: 175px;
+}
+
 .tree {
   margin-bottom: 20px;
 }
 
 .tree-node {
-  margin: 10px;
+  margin-left: 10px;
+  margin-bottom: 10px;
 }
 
 .tree-node-selected {
-  margin: 10px;
-  color: aqua;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  border: 2px double aquamarine;
 }
 
 .tree-node-child {

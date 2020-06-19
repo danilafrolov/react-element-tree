@@ -1,6 +1,8 @@
 import React from "react";
 import TreeNode from "./TreeNode";
-import cloneDeep from "lodash/cloneDeep";
+import { clone, cloneDeep } from "lodash";
+import { v4 as uuidv4 } from "uuid";
+import { Button } from "react-bootstrap";
 
 class Tree extends React.Component {
   constructor(props) {
@@ -10,13 +12,12 @@ class Tree extends React.Component {
       nodes: nodes,
       selectedNode: undefined,
     };
-    this.getNextId = this.getNextId.bind(this);
   }
   render() {
     const nodes = this.state.nodes.filter((node) => !node.parentId);
     return (
       <div className="tree-container">
-        <h1>{this.props.title}</h1>
+        <h2>{this.props.title}</h2>
         <div className="tree">
           {nodes.map((node) => (
             <TreeNode
@@ -29,43 +30,95 @@ class Tree extends React.Component {
           ))}
         </div>
         <div>
-          <button className="button" onClick={this.addNode.bind(this)}>
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={this.addNode.bind(this)}
+          >
             Add
-          </button>
-          <button className="button" onClick={this.deleteNode.bind(this)}>
+          </Button>{" "}
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={this.deleteNode.bind(this)}
+          >
+            {" "}
             Remove
-          </button>
-          <button className="button" onClick={this.editNode.bind(this)}>
+          </Button>{" "}
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={this.editNode.bind(this)}
+          >
             Edit
-          </button>
-          <button className="button" onClick={this.resetData.bind(this)}>
+          </Button>{" "}
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={this.resetData.bind(this)}
+          >
             Reset
-          </button>
+          </Button>{" "}
         </div>
       </div>
     );
   }
 
+  componentDidUpdate(prevProps) {
+    // if copy node is changed in props, insert it into nodes' collection
+    if (
+      this.props.copyNode &&
+      (!prevProps.copyNode || this.props.copyNode.id !== prevProps.copyNode.id)
+    ) {
+      this.insertCopyNode(this.props.copyNode);
+    }
+  }
+
   selectNode(node) {
+    let prevCopy; // copy of previous selected node
+    let nodes = this.state.nodes;
     if (this.state.selectedNode) {
-      const items = this.state.nodes;
-      const selectedItem = items.find(
+      const prevSelected = nodes.find(
         (item) => item.id === this.state.selectedNode.id
       );
-      if (selectedItem) {
-        selectedItem.selected = false;
-      }
+      prevCopy = clone(prevSelected);
+      prevCopy.selected = false;
     }
-    node.selected = true;
-    this.setState(() => ({ selectedNode: node }));
+
+    let currentCopy = clone(node);
+    // node is selected when the previous selected node is 'undefined' or previous node wasn't the same one
+    currentCopy.selected = !prevCopy || currentCopy.id !== prevCopy.id;
+    if (!currentCopy.selected) {
+      currentCopy = undefined;
+    }
+
+    nodes = nodes.map((node) => {
+      if (currentCopy && currentCopy.selected && node.id === currentCopy.id) {
+        return currentCopy;
+      } else if (prevCopy && node.id === prevCopy.id) {
+        return prevCopy;
+      } else {
+        return node;
+      }
+    });
+
+    this.setState(() => ({
+      nodes: nodes,
+      selectedNode: currentCopy,
+    }));
+
+    if (this.props.setSelectedNode) {
+      this.props.setSelectedNode(currentCopy);
+    }
   }
 
   addNode() {
     const nodes = cloneDeep(this.state.nodes);
-    const id = this.getNextId();
+    const orderNumber = nodes.length + 1;
+    const id = uuidv4();
     const item = {
       id: id,
-      name: "Node" + id,
+      name: "Node" + orderNumber,
     };
     if (this.state.selectedNode) {
       item.parentId = this.state.selectedNode.id;
@@ -83,13 +136,19 @@ class Tree extends React.Component {
       this.state.selectedNode.name
     );
     if (name) {
-      const nodes = cloneDeep(this.state.nodes);
+      let nodes = this.state.nodes;
       const selectedNode = nodes.find(
         (node) => node.id === this.state.selectedNode.id
       );
-      if (selectedNode) {
-        selectedNode.name = name;
-      }
+      let copy = clone(selectedNode);
+      copy.name = name;
+      nodes = nodes.map((node) => {
+        if (node.id === selectedNode.id) {
+          return copy;
+        } else {
+          return node;
+        }
+      });
       this.updateState(nodes);
     }
   }
@@ -100,7 +159,7 @@ class Tree extends React.Component {
     }
     const selectedNodeId = this.state.selectedNode.id;
 
-    let nodes = cloneDeep(this.state.nodes);
+    let nodes = this.state.nodes;
     const selectedNode = nodes.find((node) => node.id === selectedNodeId);
     if (!selectedNode) {
       return;
@@ -114,21 +173,30 @@ class Tree extends React.Component {
     }));
   }
 
-  getAllDescendants(nodeId, nodes) {
-    let children = [];
-    children.push(...nodes.filter((node) => node.parentId === nodeId));
-    children.forEach((item) => {
-      children.push(...this.getAllDescendants(item.id, nodes));
-    });
-    return children;
-  }
-
   resetData() {
-    const nodes = cloneDeep(this.props.nodes);
+    const nodes = this.props.nodes ? cloneDeep(this.props.nodes) : [];
     this.setState(() => ({
       nodes: nodes,
       selectedNode: undefined,
     }));
+  }
+
+  insertCopyNode(copyNode) {
+    let nodes = this.state.nodes;
+    if (nodes.some((node) => node.id === copyNode.id)) {
+      alert("Node with the same ID already exists");
+      return;
+    }
+    // if parentId is set, but there is no node with this id,
+    // parentId becomes 'undefined' and node becomes upper level node
+    if (
+      copyNode.parentId &&
+      !nodes.some((node) => node.id === copyNode.parentId)
+    ) {
+      copyNode.parentId = undefined;
+    }
+    nodes = nodes.concat(copyNode);
+    this.updateState(nodes);
   }
 
   updateState(nodes) {
@@ -137,18 +205,27 @@ class Tree extends React.Component {
     }));
   }
 
+  /**
+   * Get the first children of node
+   * @param nodeId node's identifier
+   */
   getChildren(nodeId) {
     const items = this.state.nodes;
     return items.filter((i) => i.parentId === nodeId);
   }
 
-  getNextId() {
-    const items = this.state.nodes;
-    if (!items || items.length === 0) {
-      return 0;
-    }
-    const id = Math.max(...items.map((i) => i.id)) + 1;
-    return id;
+  /**
+   * Get all descendants of node
+   * @param nodeId node's identifier
+   * @param nodes nodes' collection
+   */
+  getAllDescendants(nodeId, nodes) {
+    let children = [];
+    children.push(...nodes.filter((node) => node.parentId === nodeId));
+    children.forEach((item) => {
+      children.push(...this.getAllDescendants(item.id, nodes));
+    });
+    return children;
   }
 }
 
