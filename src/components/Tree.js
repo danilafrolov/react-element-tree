@@ -113,7 +113,7 @@ class Tree extends React.Component {
   }
 
   addNode() {
-    const nodes = cloneDeep(this.state.nodes);
+    let nodes = this.state.nodes;
     const orderNumber = nodes.length + 1;
     const id = uuidv4();
     const item = {
@@ -123,7 +123,7 @@ class Tree extends React.Component {
     if (this.state.selectedNode) {
       item.parentId = this.state.selectedNode.id;
     }
-    nodes.push(item);
+    nodes = nodes.concat(item);
     this.updateState(nodes);
   }
 
