@@ -187,6 +187,12 @@ class Tree extends React.Component {
       nodes: nodes,
       selectedNode: undefined,
     }));
+    if (this.props.resetSelectedNode) {
+      this.props.resetSelectedNode();
+    }
+    if (this.props.resetCopyNode) {
+      this.props.resetCopyNode();
+    }
   }
 
   insertCopyNode(copyNode) {
