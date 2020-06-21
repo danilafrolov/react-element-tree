@@ -150,6 +150,10 @@ class Tree extends React.Component {
         }
       });
       this.updateState(nodes);
+
+      if (this.props.setSelectedNode) {
+        this.props.setSelectedNode(copy);
+      }
     }
   }
 
@@ -171,6 +175,10 @@ class Tree extends React.Component {
       nodes: nodes,
       selectedNode: undefined,
     }));
+
+    if (this.props.setSelectedNode) {
+      this.props.setSelectedNode(undefined);
+    }
   }
 
   resetData() {
